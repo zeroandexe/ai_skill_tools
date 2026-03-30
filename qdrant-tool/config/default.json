@@ -1,0 +1,11 @@
+{
+  "qdrantUrl": "http://localhost:6333",
+  "ollamaUrl": "http://localhost:11434",
+  "embeddingModel": "bge-m3",
+  "embeddingDimension": 1024,
+  "defaultCollection": "memory",
+  "connectTimeout": 5000,
+  "requestTimeout": 30000,
+  "enableLog": false,
+  "logLevel": "info"
+}

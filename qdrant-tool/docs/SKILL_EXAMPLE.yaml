@@ -1,0 +1,130 @@
+# OpenClaw Skill 配置示例
+# 将此配置添加到 OpenClaw 的 skills 目录中
+
+name: memory_manager
+description: 管理长期记忆的 Skill，使用 qdrant-tool 与 Qdrant 向量数据库交互
+version: "1.0.0"
+
+# 工具配置
+tools:
+  save_memory:
+    name: save_memory
+    description: 将重要信息保存到长期记忆中
+    command: "{{qdrant_tool_path}} add --collection {{collection}} --content '{{content}}' {{#if type}}--type {{type}}{{/if}} {{#each tags}}--tag {{this}} {{/each}}"
+    parameters:
+      - name: collection
+        type: string
+        default: "user_memory"
+        description: 记忆集合名称
+      - name: content
+        type: string
+        required: true
+        description: 要保存的内容
+      - name: type
+        type: string
+        description: 记忆类型 (preference, todo, fact, person, event)
+      - name: tags
+        type: array
+        description: 标签列表
+    
+  recall_memory:
+    name: recall_memory
+    description: 从长期记忆中检索相关信息
+    command: "{{qdrant_tool_path}} search --collection {{collection}} --query '{{query}}' --limit {{limit}} {{#if filter_type}}--filter-type {{filter_type}}{{/if}} {{#each filter_tags}}--filter-tag {{this}} {{/each}} --with-content"
+    parameters:
+      - name: collection
+        type: string
+        default: "user_memory"
+      - name: query
+        type: string
+        required: true
+        description: 搜索查询
+      - name: limit
+        type: integer
+        default: 5
+        description: 返回结果数量
+      - name: filter_type
+        type: string
+        description: 按类型过滤
+      - name: filter_tags
+        type: array
+        description: 按标签过滤
+    
+  import_document:
+    name: import_document
+    description: 导入文档到知识库
+    command: "{{qdrant_tool_path}} import --file '{{file_path}}' --collection {{collection}} --chunk-size {{chunk_size}} --chunk-overlap {{chunk_overlap}} {{#if type}}--type {{type}}{{/if}}"
+    parameters:
+      - name: file_path
+        type: string
+        required: true
+        description: 文件路径
+      - name: collection
+        type: string
+        description: 集合名称（默认使用文件名）
+      - name: chunk_size
+        type: integer
+        default: 500
+      - name: chunk_overlap
+        type: integer
+        default: 50
+      - name: type
+        type: string
+        default: "document"
+    
+  delete_memory:
+    name: delete_memory
+    description: 删除指定记忆
+    command: "{{qdrant_tool_path}} delete --collection {{collection}} --id {{id}}"
+    parameters:
+      - name: collection
+        type: string
+        default: "user_memory"
+      - name: id
+        type: string
+        required: true
+        description: 记忆 ID
+    
+  update_memory:
+    name: update_memory
+    description: 更新记忆内容
+    command: "{{qdrant_tool_path}} update --collection {{collection}} --id {{id}} {{#if content}}--content '{{content}}'{{/if}} {{#if type}}--type {{type}}{{/if}}"
+    parameters:
+      - name: collection
+        type: string
+        default: "user_memory"
+      - name: id
+        type: string
+        required: true
+      - name: content
+        type: string
+        description: 新内容
+      - name: type
+        type: string
+        description: 新类型
+
+# Skill 变量
+variables:
+  qdrant_tool_path: "/usr/local/bin/qdrant-tool"
+
+# 使用示例
+examples:
+  - description: 保存用户偏好
+    tool: save_memory
+    parameters:
+      content: "用户喜欢喝冰美式咖啡，不加糖"
+      type: "preference"
+      tags: ["coffee", "food"]
+      
+  - description: 检索用户偏好
+    tool: recall_memory
+    parameters:
+      query: "用户喜欢喝什么咖啡"
+      filter_type: "preference"
+      
+  - description: 导入文档
+    tool: import_document
+    parameters:
+      file_path: "/home/user/documents/meeting_notes.txt"
+      collection: "meeting_notes"
+      type: "document"

@@ -1,0 +1,22 @@
+{
+  "_comment": "Qdrant Tool 配置文件",
+  
+  "_qdrant": "Qdrant 向量数据库配置",
+  "qdrantUrl": "http://localhost:6333",
+  
+  "_ollama": "Ollama 嵌入服务配置",
+  "ollamaUrl": "http://localhost:11434",
+  "embeddingModel": "bge-m3",
+  "embeddingDimension": 1024,
+  
+  "_collection": "默认集合名称",
+  "defaultCollection": "memory",
+  
+  "_timeout": "超时配置（毫秒）",
+  "connectTimeout": 5000,
+  "requestTimeout": 30000,
+  
+  "_log": "日志配置",
+  "enableLog": false,
+  "logLevel": "info"
+}
